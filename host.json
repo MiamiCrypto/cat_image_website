@@ -1,6 +1,11 @@
 {
-    "version": "2.0",
-    "functions": [
-        "UploadImageFunction"
-    ]
+  "version": "2.0",
+  "functions": [
+    "UploadImageFunction"
+  ],
+  "logging": {
+    "applicationInsights": {
+      "samplingPercentage": 100
+    }
+  }
 }
