@@ -1,26 +1,25 @@
+import logging
 import azure.functions as func
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from azure.storage.blob import BlobServiceClient
 import os
-from io import BytesIO
 
-# Set up Azure Blob Storage connection (use the connection string from Azure portal)
-connection_string = "<your_connection_string>"  # Replace with your actual connection string
-container_name = "uploads"  # Replace with your container name
+# Initialize BlobServiceClient to interact with Blob Storage
+blob_connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')  # Get connection string from environment variable
+blob_service_client = BlobServiceClient.from_connection_string(blob_connection_string)
+container_name = "your-container-name"  # Use the container you created in Azure Blob Storage
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        # Get the uploaded file from the request
-        file = req.files.get('file')
-        if not file:
-            return func.HttpResponse("No file uploaded", status_code=400)
+        # Get the image from the request
+        uploaded_file = req.files['file']
+        file_name = uploaded_file.filename
         
-        # Create a BlobServiceClient and a BlobClient
-        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=file.filename)
-        
-        # Upload the file to Azure Blob Storage
-        blob_client.upload_blob(file.stream, overwrite=True)
-        
-        return func.HttpResponse(f"File {file.filename} uploaded successfully.", status_code=200)
+        # Upload the image to Azure Blob Storage
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
+        blob_client.upload_blob(uploaded_file.stream, overwrite=True)
+
+        return func.HttpResponse(f"Image uploaded successfully: {file_name}", status_code=200)
+    
     except Exception as e:
-        return func.HttpResponse(f"An error occurred: {str(e)}", status_code=500)
+        logging.error(f"Error during file upload: {str(e)}")
+        return func.HttpResponse(f"Error uploading image: {str(e)}", status_code=500)
