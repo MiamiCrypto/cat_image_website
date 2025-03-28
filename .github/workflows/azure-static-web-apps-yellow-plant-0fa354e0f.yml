@@ -33,8 +33,8 @@ jobs:
           # Repository/Build Configurations
           app_location: "/" # App source code path (for static files like index.html)
           api_location: "" # Leave blank if no backend API is used
-          output_location: "build" # Directory where the built app content is located (optional if your build process generates a specific directory)
-          
+          output_location: "" # No build process, app files are already in the root
+
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
